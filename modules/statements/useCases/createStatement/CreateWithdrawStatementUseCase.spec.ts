@@ -74,6 +74,7 @@ describe("Create Deposit statement", () => {
         amount: 500,
         description: "Test",
       };
+
       await createStatementUseCase.execute(deposit);
 
       await createStatementUseCase.execute({

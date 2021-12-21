@@ -1,0 +1,57 @@
+import { InMemoryStatementsRepository } from "@modules/statements/repositories/in-memory/InMemoryStatementsRepository";
+import { InMemoryUsersRepository } from "@modules/users/repositories/in-memory/InMemoryUsersRepository";
+import { CreateUserUseCase } from "@modules/users/useCases/createUser/CreateUserUseCase";
+import { CreateStatementUseCase } from "../createStatement/CreateStatementUseCase";
+import { GetStatementOperationError } from "./GetStatementOperationError";
+import { GetStatementOperationUseCase } from "./GetStatementOperationUseCase";
+let inMemoryUsersRepository: InMemoryUsersRepository;
+let inMemoryStatementsRepository: InMemoryStatementsRepository;
+let createUserUseCase: CreateUserUseCase;
+let createStatementUseCase: CreateStatementUseCase;
+let getStatementOperationUseCase: GetStatementOperationUseCase;
+
+enum OperationType {
+  DEPOSIT = "deposit",
+  WITHDRAW = "withdraw",
+}
+
+describe("Get statement", () => {
+  beforeEach(() => {
+    inMemoryUsersRepository = new InMemoryUsersRepository();
+    inMemoryStatementsRepository = new InMemoryStatementsRepository();
+    createUserUseCase = new CreateUserUseCase(inMemoryUsersRepository);
+    createStatementUseCase = new CreateStatementUseCase(
+      inMemoryUsersRepository,
+      inMemoryStatementsRepository
+    );
+    getStatementOperationUseCase = new GetStatementOperationUseCase(
+      inMemoryUsersRepository,
+      inMemoryStatementsRepository
+    );
+  });
+
+  it("Should be able to get operation", async () => {
+    const user = await createUserUseCase.execute({
+      name: "user test",
+      email: "user@example.com",
+      password: "password",
+    });
+
+    const deposit = {
+      user_id: user.id,
+      type: OperationType.DEPOSIT,
+      amount: 100,
+      description: "College",
+    };
+
+    const operation = await createStatementUseCase.execute(deposit);
+
+    const statement = await getStatementOperationUseCase.execute({
+      user_id: user.id,
+      statement_id: operation.id,
+    });
+
+    expect(statement).toHaveProperty("id");
+    expect(statement.user_id).toEqual(operation.user_id);
+  });
+});
