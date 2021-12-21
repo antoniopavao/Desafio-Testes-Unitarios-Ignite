@@ -1,6 +1,7 @@
 import { InMemoryStatementsRepository } from "@modules/statements/repositories/in-memory/InMemoryStatementsRepository";
 import { InMemoryUsersRepository } from "@modules/users/repositories/in-memory/InMemoryUsersRepository";
 import { CreateUserUseCase } from "@modules/users/useCases/createUser/CreateUserUseCase";
+import { CreateStatementError } from "../createStatement/CreateStatementError";
 import { CreateStatementUseCase } from "../createStatement/CreateStatementUseCase";
 import { GetStatementOperationError } from "./GetStatementOperationError";
 import { GetStatementOperationUseCase } from "./GetStatementOperationUseCase";
@@ -30,7 +31,7 @@ describe("Get statement", () => {
     );
   });
 
-  it("Should be able to get operation", async () => {
+  it("Should be able to get statement", async () => {
     const user = await createUserUseCase.execute({
       name: "user test",
       email: "user@example.com",
@@ -53,5 +54,31 @@ describe("Get statement", () => {
 
     expect(statement).toHaveProperty("id");
     expect(statement.user_id).toEqual(operation.user_id);
+  });
+
+  it("Should not be able to get invalid/ non existent statements", async () => {
+    const userData = {
+      name: "User test",
+      email: "user@example.com",
+      password: "password",
+    };
+
+    const user = await createUserUseCase.execute(userData);
+
+    await expect(
+      getStatementOperationUseCase.execute({
+        user_id: user.id,
+        statement_id: "Fake statement",
+      })
+    ).rejects.toBeInstanceOf(GetStatementOperationError.StatementNotFound);
+  });
+
+  it("Should not be able to get statement if user does not exist", () => {
+    expect(async () => {
+      await getStatementOperationUseCase.execute({
+        user_id: "Fake User ID",
+        statement_id: "statement fake",
+      });
+    }).rejects.toBeInstanceOf(GetStatementOperationError.UserNotFound);
   });
 });
