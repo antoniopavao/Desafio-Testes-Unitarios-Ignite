@@ -46,4 +46,22 @@ describe("Show User Profile", () => {
 
     expect(response.status).toBe(200);
   });
+
+  it("Should not be able to show the profile of a non existent user", async () => {
+    const { secret, expiresIn } = authConfig.jwt;
+
+    const fakeUserId = uuidv4();
+    const fakeUserToken = sign({}, secret, {
+      subject: fakeUserId,
+      expiresIn,
+    });
+
+    const response = await request(app)
+      .get("/api/v1/profile")
+      .set({ Authorization: `Bearer ${fakeUserToken}` })
+      .send();
+
+    expect(response.status).toBe(404);
+    expect(response.body).toMatchObject({ message: "User not found" });
+  });
 });
