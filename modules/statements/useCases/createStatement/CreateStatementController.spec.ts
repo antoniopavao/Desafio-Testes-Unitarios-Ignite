@@ -2,12 +2,10 @@ import { Connection, createConnection } from "typeorm";
 
 import { hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
 import request from "supertest";
 
 import authConfig from "../../../../config/auth";
 import { UsersRepository } from "@modules/users/repositories/UsersRepository";
-import { StatementsRepository } from "../../repositories/StatementsRepository";
 import { app } from "../../../../app";
 import { User } from "../../../users/entities/User";
 

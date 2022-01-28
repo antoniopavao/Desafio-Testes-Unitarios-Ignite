@@ -1,3 +1,4 @@
+import { User } from "@modules/users/entities/User";
 import { inject, injectable } from "tsyringe";
 
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
@@ -22,13 +23,19 @@ export class CreateStatementUseCase {
     description,
     sender_id,
   }: ICreateStatementDTO) {
-    const user = await this.usersRepository.findById(user_id);
+    let user: User;
+
+    if (sender_id == undefined) {
+      user = await this.usersRepository.findById(user_id);
+    } else {
+      user = await this.usersRepository.findById(sender_id);
+    }
 
     if (!user) {
       throw new CreateStatementError.UserNotFound();
     }
 
-    if (type === "withdraw") {
+    if (type === "withdraw" || type === "transfer") {
       const { balance } = await this.statementsRepository.getUserBalance({
         user_id,
       });
