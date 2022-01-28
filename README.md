@@ -1,4 +1,4 @@
-<h1>Finances Api - (Using Jest & Supertest)</h1>
+<h1>Profitz API - (Using Jest & Supertest)</h1>
 
 [![Package][express-image]][express-url] 
 [![Technology][node-image]][node-url] 
